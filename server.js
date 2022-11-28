@@ -4,12 +4,16 @@ const mongoose = require("mongoose");
 const blogRoutes = require("./routes/blogs");
 const userRoutes = require("./routes/user");
 const cors = require("cors")
+const compression = require('compression');
 const PORT = process.env.PORT || 4000;
 // express app
 const app = express();
-
+app.use(compression());
 // middleware
-app.use(express.json());
+app.use(express.json({ limit: "10mb", extended: true }));
+app.use(
+  express.urlencoded({ limit: "10mb", extended: true, parameterLimit: 50000 })
+); 
 
 app.use(cors({origin:"http://localhost:3000"}))
 
@@ -17,11 +21,8 @@ app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
-/* 
-app.use(express.json({ limit: "10mb", extended: true }));
-app.use(
-  express.urlencoded({ limit: "10mb", extended: true, parameterLimit: 50000 })
-); */
+
+
 
 // BUILD
 app.get("/", (req, res) =>{
