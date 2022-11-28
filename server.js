@@ -11,21 +11,40 @@ const app = express();
 // middleware
 app.use(express.json());
 
-app.use(cors({origin:"https://yet-another-blog-8ap3.onrender.com"}))
+app.use(cors({origin:"http://localhost:3000"}))
 
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
-
+/* 
 app.use(express.json({ limit: "10mb", extended: true }));
 app.use(
   express.urlencoded({ limit: "10mb", extended: true, parameterLimit: 50000 })
-);
+); */
+
+// BUILD
+app.get("/", (req, res) =>{
+  res.sendFile("./views/build/index.html", {root: "."})
+})
 
 // routes
 app.use("/api/blogs", blogRoutes);
 app.use("/api/user", userRoutes);
+
+app.use(express.static("views/build"))
+
+
+// not found
+app.use((req, res, next) => {
+  res.status(404).sendFile("./views/pageNotFound.html", { root: "." });
+});
+
+// universal error handler middleware
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  res.json({ success: false, message: error });
+});
 
 // connect to DB
 mongoose
